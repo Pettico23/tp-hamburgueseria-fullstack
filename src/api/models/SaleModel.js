@@ -5,25 +5,26 @@ const SaleModel = {
     create: async (data) => {
         const { usuario, total, items } = data;
         
-        // Obtenemos una conexión específica del pool para manejar la transacción
+        // Obtenemos una conexión específica del pool para manejar la transacción de forma aislada
         const connection = await db.getConnection();
 
         try {
             // INICIO DE TRANSACCIÓN
-            // A partir de aquí, nada se guarda definitivamente hasta el 'commit'
+            // A partir de aquí, nada se guarda definitivamente en la BD hasta el 'commit'
             await connection.beginTransaction();
 
             // PASO A: Guardar la cabecera de la venta (Tabla 'ventas')
+            // Guardamos quién compró y cuánto gastó en total
             const [ventaResult] = await connection.query(
                 'INSERT INTO ventas (usuario_cliente, total, fecha) VALUES (?, ?, NOW())',
                 [usuario, total]
             );
             
-            // Obtenemos el ID generado para esta venta (ej: Venta #105)
+            // Obtenemos el ID único generado para esta venta (ej: Ticket #105)
             const ventaId = ventaResult.insertId;
 
             // PASO B: Guardar los detalles (Tabla 'detalle_ventas')
-            // Recorremos el carrito de compras e insertamos cada producto asociado a la ventaId
+            // Recorremos el carrito de compras e insertamos cada producto asociado a ese ID de venta
             for (const item of items) {
                 await connection.query(
                     'INSERT INTO detalle_ventas (venta_id, producto_id, nombre_producto, precio_unitario, cantidad) VALUES (?, ?, ?, ?, ?)',
@@ -32,23 +33,25 @@ const SaleModel = {
             }
 
             // CONFIRMACIÓN (COMMIT)
-            // Si llegamos aquí sin errores, guardamos todo permanentemente
+            // Si llegamos hasta aquí sin errores, guardamos todo permanentemente
             await connection.commit();
             
+            // Devolvemos el ID de la venta para mostrárselo al cliente
             return ventaId;
 
         } catch (error) {
             // ERROR (ROLLBACK)
-            // Si algo falló, deshacemos todos los cambios de esta transacción
+            // Si algo falló en cualquier paso, deshacemos todos los cambios
             await connection.rollback();
+            console.error("Error en transacción de venta:", error);
             throw error; // Lanzamos el error para que el controlador lo maneje
         } finally {
-            // Liberamos la conexión para que vuelva al pool
+            // Liberamos la conexión para que vuelva al pool y pueda ser usada por otro usuario
             connection.release();
         }
     },
 
-    // 2. Obtener historial de ventas (Opcional, para reportes)
+    // 2. Obtener historial de ventas (Para el reporte de Excel/PDF)
     findAll: async () => {
         try {
             const [rows] = await db.query('SELECT * FROM ventas ORDER BY fecha DESC');
@@ -58,6 +61,5 @@ const SaleModel = {
         }
     }
 };
-/*Este archivo es crucial porque maneja la lógica de las Ventas. Como una venta implica guardar datos en dos lugares (la cabecera de la venta y los productos detallados), utilizamos Transacciones SQL. Esto asegura que si falla el guardado de un producto, se cancele toda la venta para no dejar datos corruptos en la base de datos.*/   
 
 export default SaleModel;
