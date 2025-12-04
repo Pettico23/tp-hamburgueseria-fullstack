@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Admin - Seven Burgers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .bg-burger {
+            background-image: url('https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=2565&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-burger h-screen w-full flex items-center justify-center relative">
+
+    <!-- Capa oscura para mejorar lectura -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <!-- Tarjeta de Login (Glassmorphism) -->
+    <div class="relative z-10 w-full max-w-md p-8 mx-4 bg-white/10 border border-white/20 rounded-3xl shadow-2xl backdrop-blur-md">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-block p-4 rounded-full bg-red-600 shadow-lg shadow-red-500/30 mb-4 transform hover:scale-110 transition duration-300">
+                <i class="fas fa-user-shield text-3xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-black text-white tracking-tight">PANEL ADMIN</h1>
+            <p class="text-gray-300 text-sm mt-1 font-medium">Gestiona tu sucursal Seven Burgers</p>
+        </div>
+
+        <!-- Alerta de Error -->
+        <% if (error) { %>
+            <div class="flex items-center gap-3 bg-red-500/20 border border-red-500/50 text-red-100 p-4 rounded-xl mb-6 animate-pulse">
+                <i class="fas fa-exclamation-circle text-xl"></i>
+                <div>
+                    <span class="font-bold block text-sm">Acceso Denegado</span>
+                    <span class="text-xs opacity-90"><%= error %></span>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Formulario -->
+        <form action="/login" method="POST" class="space-y-5">
+            
+            <!-- Email -->
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="fas fa-envelope text-gray-400 group-focus-within:text-yellow-400 transition"></i>
+                </div>
+                <input type="email" name="email" placeholder="correo@sevenburgers.com" 
+                       class="w-full pl-11 pr-4 py-3.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition duration-200" required>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="fas fa-lock text-gray-400 group-focus-within:text-yellow-400 transition"></i>
+                </div>
+                <input type="password" name="password" placeholder="••••••••••••" 
+                       class="w-full pl-11 pr-4 py-3.5 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition duration-200" required>
+            </div>
+
+            <!-- Botón -->
+            <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-900/20 hover:shadow-red-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex justify-center items-center gap-2 group">
+                <span>INGRESAR AL SISTEMA</span>
+                <i class="fas fa-arrow-right group-hover:translate-x-1 transition"></i>
+            </button>
+
+        </form>
+
+        <!-- Footer Links -->
+        <div class="mt-8 text-center space-y-4">
+            <p class="text-sm text-gray-400">
+                ¿No tienes cuenta? 
+                <a href="/register" class="text-white font-bold hover:text-yellow-400 hover:underline transition">Regístrate aquí</a>
+            </p>
+            <div class="border-t border-white/10 pt-4">
+                <a href="/" class="text-xs text-gray-500 hover:text-white transition flex items-center justify-center gap-1">
+                    <i class="fas fa-store"></i> Volver al Kiosco
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
